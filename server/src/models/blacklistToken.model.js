@@ -1,6 +1,10 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const blacklistTokenSchema = new mongoose.Schema({
+    email: {
+        type: String,
+        required: true
+    },
     token: {
         type: String,
         required: true,
@@ -8,9 +12,10 @@ const blacklistTokenSchema = new mongoose.Schema({
     },
     createdAt: {
         type: Date,
-        default: Date.now,
-        expires: 86400 // 24 hours in seconds
+        default: Date.now
     }
 });
 
-module.exports = mongoose.model('BlacklistToken', blacklistTokenSchema);
+const BlacklistToken = mongoose.model('BlacklistToken', blacklistTokenSchema);
+
+export default BlacklistToken;

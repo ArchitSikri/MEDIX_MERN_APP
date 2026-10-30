@@ -50,32 +50,32 @@ const doctorSchema = new mongoose.Schema({
     bio: { type: String, maxlength: 1000 },
     clinicAddress: { type: String },
     medical_license : {
-        type : string,
+        type : String,
         required : true
     },
     Adhar_Card : {
-        type : string,
+        type : String,
         required : true
     },
     pancard : {
-       type : string,
-       reuqired : true
+       type : String,
+       required : true
     },
     UG_Degree_certificate : {
-        type : string,
-        reuqired : true
+        type : String,
+        required : true
     },
     PG_Degree_certificate : {
-        type : string
+        type : String
     },
     Photo : {
-        type  : string,
+        type  : String,
         required : true
     },
      status: {
       type: String,
-      enum: ["REGISTERED", "KYC_SUBMITTED", "UNDER_REVIEW", "APPROVED", "REJECTED"],
-      default: "REGISTERED",
+      enum: ["PENDING", "APPROVED", "REJECTED"],
+      default: "PENDING",
       index: true,
     },
      razorpayAccountId: {

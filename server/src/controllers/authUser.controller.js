@@ -1,5 +1,7 @@
 import userModel from '../models/user.model.js';
 import sessionModel from '../models/sessionn.model.js';
+import BlacklistToken from '../models/blacklistToken.model.js';
+import BlacklistedAccount from '../models/blacklistedAccount.model.js';
 import jwt from 'jsonwebtoken';
 import config from '../config/config.js';
 import crypto from 'crypto';
@@ -7,6 +9,7 @@ import { sendEmail } from '../services/email.service.js';
 import otpModel from '../models/otp.model.js';
 import { generateOtp, getOtpHtml } from '../utils/utils.js';
 import { OAuth2Client } from 'google-auth-library';
+import { deleteFile, uploadFile } from '../services/imagekit.service.js';
 
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClient = new OAuth2Client(googleClientId);
@@ -17,6 +20,11 @@ const refreshCookieOptions = {
     path: '/api/user/auth',
     maxAge: 7 * 24 * 60 * 60 * 1000
 };
+
+function getProfilePictureFileName(file) {
+    const extension = file.originalname.match(/\.[a-zA-Z0-9]+$/)?.[0].toLowerCase() || '.jpg';
+    return `user-profile-${crypto.randomUUID()}${extension}`;
+}
 
 export async function registerUser(req, res) {
     const { username, email, password } = req.body ?? {};
@@ -36,29 +44,61 @@ export async function registerUser(req, res) {
     if (existingUser) {
         return res.status(400).json({ message: "User already exists" });
     }
+
+    let profilePicture = '';
+    let uploadedProfilePicture;
+    if (req.file) {
+        try {
+            uploadedProfilePicture = await uploadFile(
+                req.file.buffer,
+                getProfilePictureFileName(req.file),
+                req.file.mimetype
+            );
+            profilePicture = uploadedProfilePicture.url;
+        } catch (error) {
+            console.error('Failed to upload user profile picture:', error);
+            return res.status(503).json({
+                message: 'Unable to upload profile picture. Check ImageKit configuration and try again.'
+            });
+        }
+    }
+
     const hashedPassword = await crypto.createHash('sha256').update(password).digest('hex');
     const newUser = new userModel({
         username: normalizedUsername,
         email: normalizedEmail,
-        password: hashedPassword
+        password: hashedPassword,
+        profilePicture
     });
-    await newUser.save();
-
     const otp = generateOtp();
     const html = getOtpHtml(otp);
-
-    const otpHash = crypto.createHash("sha256").update(otp).digest("hex");
-    await otpModel.create({
-        email: normalizedEmail,
-        user: newUser._id,
-        otpHash
-    })
+    try {
+        await newUser.save();
+        const otpHash = crypto.createHash("sha256").update(otp).digest("hex");
+        await otpModel.create({
+            email: normalizedEmail,
+            user: newUser._id,
+            otpHash
+        });
+    } catch (error) {
+        if (!newUser.isNew) {
+            await otpModel.deleteMany({ user: newUser._id });
+            await userModel.findByIdAndDelete(newUser._id);
+        }
+        if (uploadedProfilePicture) {
+            await deleteFile(uploadedProfilePicture.fileId);
+        }
+        throw error;
+    }
 
     try {
         await sendEmail(normalizedEmail, "OTP Verification", `Your OTP code is ${otp}`, html);
     } catch (error) {
         await otpModel.deleteMany({ user: newUser._id });
         await userModel.findByIdAndDelete(newUser._id);
+        if (uploadedProfilePicture) {
+            await deleteFile(uploadedProfilePicture.fileId);
+        }
         console.error('Failed to send verification email:', error);
         return res.status(503).json({ message: 'Unable to send verification email. Check the email configuration and try again.' });
     }
@@ -68,10 +108,39 @@ export async function registerUser(req, res) {
         user: {
             username: newUser.username,
             email: newUser.email,
+            profilePicture: newUser.profilePicture,
             verified: newUser.verified
         },
     })
 };
+
+export async function updateProfilePicture(req, res) {
+    if (!req.user) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+    if (!req.file) {
+        return res.status(400).json({ message: 'Profile picture file is required' });
+    }
+
+    const uploadedProfilePicture = await uploadFile(
+        req.file.buffer,
+        getProfilePictureFileName(req.file),
+        req.file.mimetype
+    );
+    req.user.profilePicture = uploadedProfilePicture.url;
+
+    try {
+        await req.user.save();
+    } catch (error) {
+        await deleteFile(uploadedProfilePicture.fileId);
+        throw error;
+    }
+
+    return res.status(200).json({
+        message: 'Profile picture updated successfully',
+        profilePicture: req.user.profilePicture
+    });
+}
 
 export async function getMe(req, res) {
     if (!req.user) {
@@ -83,6 +152,7 @@ export async function getMe(req, res) {
         user: {
             username: req.user.username,
             email: req.user.email,
+            profilePicture: req.user.profilePicture,
             rating : req.user.rating
         }
     })
@@ -112,6 +182,15 @@ export async function refreshToken(req, res) {
     });
     if (!session) {
         return res.status(401).json({ message: "Session not found" });
+    }
+
+    const user = await userModel.findById(userId);
+    if (
+        !user ||
+        !user.active ||
+        await BlacklistedAccount.exists({ accountType: 'user', accountId: userId })
+    ) {
+        return res.status(403).json({ message: 'User account is inactive' });
     }
 
     const newRefreshToken = jwt.sign({ _id: userId }, config.JWT_SECRET, { expiresIn: '7d' });
@@ -181,6 +260,13 @@ export async function login(req, res) {
         })
     }
 
+    if (
+        !user.active ||
+        await BlacklistedAccount.exists({ accountType: 'user', accountId: user._id })
+    ) {
+        return res.status(403).json({ message: 'User account is inactive' });
+    }
+
     if (!user.verified) {
         return res.status(401).json({
             message: "Email not verified"
@@ -245,7 +331,8 @@ export async function verifyEmail(req, res) {
 
     const otpDoc = await otpModel.findOne({
         email: email.trim().toLowerCase(),
-        otpHash
+        otpHash,
+        user: { $exists: true }
     })
 
     if (!otpDoc) {
@@ -356,3 +443,29 @@ export async function googleLogin(req, res) {
         }
     });
 };
+
+export async function toggleActive(req, res) {
+    const user = req.user;
+    if (!user) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const authorization = req.headers.authorization?.trim().split(/\s+/);
+    const token = authorization?.[1];
+    if (
+        authorization?.[0]?.toLowerCase() !== 'bearer' ||
+        !token ||
+        authorization.length !== 2
+    ) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    user.active = !user.active;
+    await user.save();
+    await BlacklistToken.create({ email: user.email, token });
+
+    return res.status(200).json({
+        message: `Account ${user.active ? 'activated' : 'deactivated'} successfully`,
+        active: user.active
+    });
+}

@@ -54,7 +54,7 @@ const userSchema = new mongoose.Schema({
         default: 'NOT_CREATED'
     },
     Money_spend : {
-        type : number
+        type : Number
     }
 } , { timestamps: true } )
 

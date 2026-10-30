@@ -9,7 +9,16 @@ const otpSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "users",
-        required: [ true, "User is required" ]
+        required: function () {
+            return !this.doctor;
+        }
+    },
+    doctor: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Doctor",
+        required: function () {
+            return !this.user;
+        }
     },
     otpHash: {
         type: String,

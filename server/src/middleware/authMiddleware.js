@@ -2,6 +2,8 @@ import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 import userModel from '../models/user.model.js';
 import DoctorModel from '../models/doctor.model.js';
+import BlacklistToken from '../models/blacklistToken.model.js';
+import BlacklistedAccount from '../models/blacklistedAccount.model.js';
 import config from '../config/config.js';
 
 function getBearerToken(req) {
@@ -34,10 +36,24 @@ function verifyToken(token, res) {
     }
 }
 
+async function rejectBlacklistedToken(token, res) {
+    const blacklistedToken = await BlacklistToken.exists({ token });
+    if (blacklistedToken) {
+        res.status(401).json({ message: 'Unauthorized' });
+        return true;
+    }
+
+    return false;
+}
+
 export async function authUser(req, res, next) {
     const token = getBearerToken(req);
     if (!token) {
         return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    if (await rejectBlacklistedToken(token, res)) {
+        return;
     }
 
     const userId = verifyToken(token, res);
@@ -46,7 +62,11 @@ export async function authUser(req, res, next) {
     }
 
     const user = await userModel.findById(userId);
-    if (!user) {
+    if (
+        !user ||
+        !user.active ||
+        await BlacklistedAccount.exists({ accountType: 'user', accountId: userId })
+    ) {
         return res.status(401).json({ message: 'Unauthorized' });
     }
 
@@ -60,16 +80,37 @@ export async function authDoctor(req, res, next) {
         return res.status(401).json({ message: 'Unauthorized' });
     }
 
+    if (await rejectBlacklistedToken(token, res)) {
+        return;
+    }
+
     const doctorId = verifyToken(token, res);
     if (!doctorId) {
         return;
     }
 
     const doctor = await DoctorModel.findById(doctorId);
-    if (!doctor) {
+    if (
+        !doctor ||
+        !doctor.active ||
+        doctor.status !== 'APPROVED' ||
+        await BlacklistedAccount.exists({ accountType: 'doctor', accountId: doctorId })
+    ) {
         return res.status(401).json({ message: 'Unauthorized' });
     }
 
     req.doctor = doctor;
+    return next();
+}
+
+export function requireAdmin(req, res, next) {
+    if (!req.user) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    if (typeof req.user.role !== 'string' || req.user.role.toLowerCase() !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+    }
+
     return next();
 }
