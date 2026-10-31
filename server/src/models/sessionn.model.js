@@ -5,7 +5,7 @@ const sessionSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "users",
         required: function () {
-            return this.accountType !== "doctor";
+            return this.accountType === "user";
         }
     },
     doctor: {
@@ -15,9 +15,16 @@ const sessionSchema = new mongoose.Schema({
             return this.accountType === "doctor";
         }
     },
+    admin: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Admin",
+        required: function () {
+            return this.accountType === "admin";
+        }
+    },
     accountType: {
         type: String,
-        enum: ["user", "doctor"],
+        enum: ["user", "doctor", "admin"],
         default: "user"
     },
     refreshTokenHash: {

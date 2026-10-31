@@ -90,6 +90,9 @@ const doctorSchema = new mongoose.Schema({
     },
     Money_earned : {
         type : Number
+    },
+    socketId : {
+        type : String
     }
 }, {
     timestamps: true, toJSON: { virtuals: true }

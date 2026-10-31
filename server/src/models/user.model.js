@@ -55,6 +55,9 @@ const userSchema = new mongoose.Schema({
     },
     Money_spend : {
         type : Number
+    },
+    socketid : {
+        type : String
     }
 } , { timestamps: true } )
 

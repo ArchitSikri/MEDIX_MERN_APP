@@ -2,6 +2,8 @@ import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 import userModel from '../models/user.model.js';
 import DoctorModel from '../models/doctor.model.js';
+import AdminModel from '../models/admin.model.js';
+import sessionModel from '../models/sessionn.model.js';
 import BlacklistToken from '../models/blacklistToken.model.js';
 import BlacklistedAccount from '../models/blacklistedAccount.model.js';
 import config from '../config/config.js';
@@ -100,6 +102,60 @@ export async function authDoctor(req, res, next) {
     }
 
     req.doctor = doctor;
+    return next();
+}
+
+export async function authAdmin(req, res, next) {
+    const token = getBearerToken(req);
+    if (!token) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    if (await rejectBlacklistedToken(token, res)) {
+        return;
+    }
+
+    let decoded;
+    try {
+        decoded = jwt.verify(token, config.JWT_SECRET);
+    } catch {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    if (
+        !decoded ||
+        typeof decoded !== 'object' ||
+        decoded.role !== 'admin' ||
+        decoded.tokenType !== 'admin' ||
+        typeof decoded._id !== 'string' ||
+        !mongoose.isValidObjectId(decoded._id)
+    ) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    if (
+        typeof decoded.sessionId !== 'string' ||
+        !mongoose.isValidObjectId(decoded.sessionId)
+    ) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const session = await sessionModel.findOne({
+        _id: decoded.sessionId,
+        admin: decoded._id,
+        accountType: 'admin',
+        revoked: false
+    });
+    if (!session) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const admin = await AdminModel.findById(decoded._id);
+    if (!admin || !admin.active) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    req.admin = admin;
     return next();
 }
 

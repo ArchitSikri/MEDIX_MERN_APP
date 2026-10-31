@@ -1,9 +1,11 @@
-import app from "./app.js";
-import connectToDb from "./src/config/db.js";
+const http = require('http');
+const app = require('./app');
+const port = process.env.PORT || 3000;
+const { initializeSocket } = require('./socket');
 
+const server = http.createServer(app);
+initializeSocket(server);
 
-connectToDb();
-
-app.listen(3000, () => {
-    console.log("Server is running on port 3000");
-})
+server.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+});
