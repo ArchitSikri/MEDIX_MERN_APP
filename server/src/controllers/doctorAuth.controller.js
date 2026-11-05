@@ -9,6 +9,7 @@ import config from '../config/config.js';
 import { sendEmail } from '../services/email.service.js';
 import { deleteFile, uploadFile } from '../services/imagekit.service.js';
 import { generateOtp, getOtpHtml } from '../utils/utils.js';
+import { notifyDoctorRegistration } from '../../socket.js';
 
 const refreshCookieOptions = {
     httpOnly: true,
@@ -173,6 +174,8 @@ export async function registerDoctor(req, res) {
             message: 'Unable to send verification email. Check the email configuration and try again.'
         });
     }
+
+    notifyDoctorRegistration();
 
     return res.status(201).json({
         message: 'Doctor registered. Verify your email and wait for admin approval before logging in.',

@@ -28,3 +28,7 @@ export function initializeSocket(server) {
         });
     });
 }
+
+export function notifyDoctorRegistration() {
+    io?.emit('doctor:registered');
+}

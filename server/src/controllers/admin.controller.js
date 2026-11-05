@@ -275,6 +275,33 @@ export async function approveDoctor(req, res) {
     return res.status(409).json({ message: 'Only pending doctors can be approved' });
 }
 
+export async function rejectDoctor(req, res) {
+    const { doctorId } = req.params;
+    if (!mongoose.isValidObjectId(doctorId)) {
+        return res.status(400).json({ message: 'Invalid doctor ID' });
+    }
+
+    const doctor = await DoctorModel.findOneAndUpdate(
+        { _id: doctorId, status: 'PENDING' },
+        { status: 'REJECTED' },
+        { new: true, runValidators: true }
+    ).select('-password');
+
+    if (doctor) {
+        await sessionModel.updateMany(
+            { doctor: doctor._id, accountType: 'doctor', revoked: false },
+            { revoked: true }
+        );
+        return res.status(200).json({ message: 'Doctor rejected successfully', doctor });
+    }
+
+    if (!await DoctorModel.exists({ _id: doctorId })) {
+        return res.status(404).json({ message: 'Doctor not found' });
+    }
+
+    return res.status(409).json({ message: 'Only pending doctors can be rejected' });
+}
+
 export async function blacklistDoctor(req, res) {
     const { doctorId } = req.params;
     if (!mongoose.isValidObjectId(doctorId)) {
