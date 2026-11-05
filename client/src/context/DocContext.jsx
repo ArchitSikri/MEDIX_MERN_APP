@@ -1,22 +1,15 @@
-import React, { createContext, useState } from 'react'
-
-export const DoctorDataContext = createContext()
+import { useAuthSession } from './authSession.js'
+import { DoctorDataContext } from './DoctorDataContext.js'
 
 const DoctorContext = ({ children }) => {
-  const [doctor, setdoctor] = useState(null)
-  const [isLoading, setIsLoading] = useState(null)
-  const [error, setError] = useState(null)
-
-  const value = {
-    doctor, setdoctor,
-    isLoading,
-    setIsLoading,
-    error,
-    setError
-  }
+  const auth = useAuthSession({
+    role: 'doctor',
+    authPath: '/api/doctor/auth',
+    accountKey: 'doctor'
+  })
 
   return (
-    <DoctorDataContext.Provider value={value}>
+    <DoctorDataContext.Provider value={{ ...auth, doctor: auth.account, setDoctor: auth.setAccount }}>
       {children}
     </DoctorDataContext.Provider>
   )
@@ -24,5 +17,3 @@ const DoctorContext = ({ children }) => {
 }
 
 export default DoctorContext
-
-

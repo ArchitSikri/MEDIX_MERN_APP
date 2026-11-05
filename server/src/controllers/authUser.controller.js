@@ -417,6 +417,13 @@ export async function googleLogin(req, res) {
         });
     }
 
+    if (
+        !user.active ||
+        await BlacklistedAccount.exists({ accountType: 'user', accountId: user._id })
+    ) {
+        return res.status(403).json({ message: 'User account is inactive' });
+    }
+
     const refreshToken = jwt.sign({ _id: user._id }, config.JWT_SECRET, { expiresIn: '7d' });
     const refreshTokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
     const session = await sessionModel.create({

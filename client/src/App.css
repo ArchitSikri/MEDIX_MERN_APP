@@ -727,6 +727,83 @@ html::-webkit-scrollbar {
   display: none;
 }
 
+.auth-feedback {
+  @apply mt-4 rounded-lg border border-line bg-input px-4 py-3 text-sm leading-relaxed;
+}
+
+.auth-feedback--error {
+  @apply border-red-200 bg-red-50 text-red-800;
+}
+
+.google-auth {
+  @apply mt-5 flex flex-col items-center gap-3;
+}
+
+.google-auth-divider {
+  @apply text-xs text-muted;
+}
+
+.google-auth-note {
+  @apply text-center text-xs text-muted;
+}
+
+.google-auth-note code {
+  @apply rounded bg-input px-1 py-0.5;
+}
+
+.submit-button:disabled,
+.account-logout:disabled {
+  @apply cursor-wait opacity-60;
+}
+
+.auth-action-link {
+  @apply no-underline;
+}
+
+.account-page {
+  @apply min-h-screen px-6;
+}
+
+.account-page .site-header {
+  @apply mx-auto max-w-6xl;
+}
+
+.account-logout {
+  @apply rounded-full border border-line px-5 py-2 text-sm transition hover:border-accent hover:text-accent;
+}
+
+.account-card {
+  @apply mx-auto mt-16 max-w-2xl rounded-2xl border border-line bg-white p-8 shadow-sm;
+}
+
+.account-card h1 {
+  @apply mt-3 font-display text-4xl;
+}
+
+.account-card > p {
+  @apply mt-3 text-muted;
+}
+
+.account-card dl {
+  @apply mt-8 divide-y divide-line;
+}
+
+.account-card dl > div {
+  @apply flex items-center justify-between gap-5 py-4;
+}
+
+.account-card dt {
+  @apply text-sm text-muted;
+}
+
+.account-card dd {
+  @apply text-right text-sm font-medium;
+}
+
+.auth-loading {
+  @apply grid place-items-center text-sm text-muted;
+}
+
 html:has(.auth-layout--doctor-register) {
   scrollbar-width: auto;
 }

@@ -1,11 +1,11 @@
-const socketIo = require('socket.io');
-import userModel from "./src/models/user.model"
-import DoctorModel from "./src/models/doctor.model"
+import { Server } from 'socket.io';
+import userModel from './src/models/user.model.js';
+import DoctorModel from './src/models/doctor.model.js';
 
 let io;
 
-function initializeSocket(server) {
-    io = socketIo(server, {
+export function initializeSocket(server) {
+    io = new Server(server, {
         cors: {
             origin: '*',
             methods: [ 'GET', 'POST' ]
@@ -28,5 +28,3 @@ function initializeSocket(server) {
         });
     });
 }
-
-module.exports = { initializeSocket};

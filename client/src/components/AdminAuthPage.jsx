@@ -10,7 +10,9 @@ import {
   ShieldCheck,
   UserRound
 } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+
+const API_BASE_URL = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '')
 
 function AdminBrand() {
   return (
@@ -37,6 +39,7 @@ function AdminTextField({ id, label, placeholder, type = 'text', icon: Icon, aut
           id={id}
           name={id}
           placeholder={placeholder}
+          required
           type={type}
         />
       </span>
@@ -58,6 +61,7 @@ function AdminPasswordField({ id, label, placeholder, autoComplete }) {
           id={id}
           name={id}
           placeholder={placeholder}
+          required
           type={visible ? 'text' : 'password'}
         />
         <button
@@ -78,6 +82,63 @@ function AdminPasswordField({ id, label, placeholder, autoComplete }) {
 export default function AdminAuthPage({ mode }) {
   const isRegister = mode === 'register'
   const alternatePath = isRegister ? '/admin/login' : '/admin/register'
+  const navigate = useNavigate()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState('')
+  const [statusMessage, setStatusMessage] = useState('')
+
+  async function handleSubmit(event) {
+    event.preventDefault()
+    setError('')
+    setStatusMessage('')
+
+    const form = event.currentTarget
+    const formData = new FormData(form)
+    const password = String(formData.get('password') || '')
+    if (isRegister && password !== formData.get('confirm-password')) {
+      setError('Passwords do not match.')
+      return
+    }
+
+    const body = isRegister
+      ? {
+          username: formData.get('username'),
+          email: formData.get('email'),
+          password,
+          adminSecretKey: formData.get('adminSecretKey')
+        }
+      : {
+          email: formData.get('email'),
+          password,
+          adminSecretKey: formData.get('adminSecretKey')
+        }
+
+    setIsSubmitting(true)
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/${isRegister ? 'register' : 'login'}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(body)
+      })
+      const result = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        throw new Error(result.message || 'The request could not be completed.')
+      }
+
+      if (!isRegister && result.accessToken) {
+        sessionStorage.setItem('adminAccessToken', result.accessToken)
+        navigate('/admin/dashboard', { replace: true, state: { admin: result.admin } })
+        return
+      }
+      setStatusMessage(result.message || (isRegister ? 'Admin registered successfully.' : 'Admin login successful.'))
+      if (isRegister) form.reset()
+    } catch (requestError) {
+      setError(requestError.message || 'Unable to connect to the server.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
     <main className="admin-auth-page flex min-h-screen flex-col bg-paper px-[clamp(23px,7vw,112px)] text-ink">
@@ -129,7 +190,7 @@ export default function AdminAuthPage({ mode }) {
 
           <form
             className={`grid gap-3 sm:gap-[15px]${isRegister ? ' sm:grid-cols-2' : ''}`}
-            onSubmit={(event) => event.preventDefault()}
+            onSubmit={handleSubmit}
           >
             {isRegister && (
               <AdminTextField
@@ -155,31 +216,33 @@ export default function AdminAuthPage({ mode }) {
               placeholder={isRegister ? 'Create a password' : 'Enter your password'}
             />
             {isRegister && (
-              <>
-                <AdminPasswordField
-                  autoComplete="new-password"
-                  id="confirm-password"
-                  label="Confirm password"
-                  placeholder="Enter your password again"
-                />
-                <AdminTextField
-                  autoComplete="off"
-                  icon={KeyRound}
-                  id="adminSecretKey"
-                  label="Admin secret key"
-                  placeholder="Enter your admin secret key"
-                  type="password"
-                />
-              </>
+              <AdminPasswordField
+                autoComplete="new-password"
+                id="confirm-password"
+                label="Confirm password"
+                placeholder="Enter your password again"
+              />
             )}
+            <AdminTextField
+              autoComplete="off"
+              icon={KeyRound}
+              id="adminSecretKey"
+              label="Admin secret key"
+              placeholder="Enter your admin secret key"
+              type="password"
+            />
             <button
               className={`mt-1 flex min-h-11 cursor-pointer items-center justify-between rounded-[3px] border border-accent bg-accent px-[17px] text-xs font-medium text-white transition hover:-translate-y-px hover:border-[#8e3336] hover:bg-[#8e3336] sm:min-h-12${isRegister ? ' sm:col-span-2' : ''}`}
+              disabled={isSubmitting}
               type="submit"
             >
-              <span>{isRegister ? 'Create admin account' : 'Sign in as admin'}</span>
+              <span>{isSubmitting ? 'Please wait…' : isRegister ? 'Create admin account' : 'Sign in as admin'}</span>
               <ArrowRight size={17} strokeWidth={1.8} aria-hidden="true" />
             </button>
           </form>
+
+          {error && <p className="mt-3 text-xs text-red-700" role="alert">{error}</p>}
+          {statusMessage && <p className="mt-3 text-xs text-green-800" role="status">{statusMessage}</p>}
 
           <p className="mt-5 text-center text-[11px] text-muted">
             {isRegister ? 'Already have an admin account?' : 'Need an admin account?'}

@@ -1,16 +1,12 @@
-# React + Vite
+# Medix
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Run locally
 
-Currently, two official plugins are available:
+1. Configure `server/.env` with `MONGO_URL` and `JWT_SECRET`.
+2. Set `VITE_GOOGLE_CLIENT_ID` in `client/.env` to enable Google sign-in for user login and registration. Configure `GOOGLE_CLIENT_ID` on the server to the same OAuth client ID. Configure `GOOGLE_USER`, `GOOGLE_CLIENT_SECRET`, and `GOOGLE_REFRESH_TOKEN` for email verification. Doctor registration and user profile-image uploads also require `IMAGEKIT_PRIVATE_KEY`.
+3. Start the API with `npm run dev` from `server/`.
+4. Start the client with `npm run dev` from `client/`. Vite proxies `/api` requests to `http://localhost:3000`.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+For a separately hosted API, set `VITE_API_URL` in the client environment and set `CLIENT_ORIGIN` in the server environment to the frontend origin. `CLIENT_ORIGIN` accepts a comma-separated list.
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+User and doctor registrations require email OTP verification. Doctors can sign in only after their email has been verified and an administrator has approved their profile.

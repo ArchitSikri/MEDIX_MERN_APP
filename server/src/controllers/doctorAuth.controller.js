@@ -131,7 +131,11 @@ export async function registerDoctor(req, res) {
             password: hashPassword(body.password),
             profilePicture: uploadedFiles.profilePicture || '',
             specialization: body.specialization.trim(),
-            qualifications: Array.isArray(body.qualifications) ? body.qualifications : [],
+            qualifications: Array.isArray(body.qualifications)
+                ? body.qualifications
+                : typeof body.qualifications === 'string'
+                    ? body.qualifications.split(',').map((qualification) => qualification.trim()).filter(Boolean)
+                    : [],
             experienceYears: body.experienceYears ?? 0,
             licenseNumber: body.licenseNumber.trim(),
             consultationFee: body.consultationFee ?? 0,

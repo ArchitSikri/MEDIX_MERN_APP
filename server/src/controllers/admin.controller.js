@@ -99,12 +99,19 @@ export async function registerAdmin(req, res) {
 }
 
 export async function loginAdmin(req, res) {
-    const { email, password } = req.body ?? {};
+    const { email, password, adminSecretKey } = req.body ?? {};
     if (
         typeof email !== 'string' || !email.trim() ||
-        typeof password !== 'string' || !password
+        typeof password !== 'string' || !password ||
+        typeof adminSecretKey !== 'string' || !adminSecretKey
     ) {
-        return res.status(400).json({ message: 'Email and password are required' });
+        return res.status(400).json({ message: 'Email, password, and admin secret key are required' });
+    }
+    if (!config.ADMIN_SECRET_KEY) {
+        return res.status(503).json({ message: 'Admin login is not configured' });
+    }
+    if (!safeEqual(adminSecretKey, config.ADMIN_SECRET_KEY)) {
+        return res.status(403).json({ message: 'Invalid admin secret key' });
     }
 
     const admin = await AdminModel.findOne({

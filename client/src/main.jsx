@@ -5,11 +5,20 @@ import './App.css'
 import 'remixicon/fonts/remixicon.css'
 import App from './App.jsx'
 import { BrowserRouter } from 'react-router-dom'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 
-createRoot(document.getElementById('root')).render(
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
+
+const app = (
   <StrictMode>
     <BrowserRouter>
       <App />
     </BrowserRouter>
-  </StrictMode>,
+  </StrictMode>
+)
+
+createRoot(document.getElementById('root')).render(
+  googleClientId
+    ? <GoogleOAuthProvider clientId={googleClientId}>{app}</GoogleOAuthProvider>
+    : app
 )

@@ -1,18 +1,15 @@
-import React from 'react'
-import { createContext } from 'react'
-
-export const UserDataContext = createContext()
+import { useAuthSession } from './authSession.js'
+import { UserDataContext } from './UserDataContext.js'
 
 const UserContext = ({ children }) => {
-  const [user, setUser] = React.useState({
-    Email: '',
-    Username : " "
+  const auth = useAuthSession({
+    role: 'user',
+    authPath: '/api/user/auth',
+    accountKey: 'user'
   })
-  const [isLoading, setIsLoading] = useState(null)
-  const [error, setError] = useState(null)
 
   return (
-    <UserDataContext.Provider value={{ user, setUser , isLoading, setIsLoading, error, setError }}>
+    <UserDataContext.Provider value={{ ...auth, user: auth.account, setUser: auth.setAccount }}>
       {children}
     </UserDataContext.Provider>
   )
