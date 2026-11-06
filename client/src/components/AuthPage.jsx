@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react'
-import { ArrowLeft, ArrowRight, Eye, EyeOff, FileUp, LockKeyhole, Mail, Stethoscope, UserRound } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Eye, EyeOff, FileUp, LockKeyhole, Mail, Stethoscope, UserRound, Wallet } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { GoogleLogin } from '@react-oauth/google'
 import { DoctorDataContext } from '../context/DoctorDataContext.js'
@@ -312,6 +312,13 @@ export default function AuthPage({ audience, mode }) {
                 required
               />
               <FileField id="profilePicture" label="Profile picture" />
+              <TextField
+                autoComplete="off"
+                icon={Wallet}
+                id="UPI_Id"
+                label="UPI ID"
+                placeholder="name@bank"
+              />
 
               <div className="form-section-heading">
                 <span className="form-section-number">02</span>
@@ -408,6 +415,15 @@ export default function AuthPage({ audience, mode }) {
                 />
               )}
               {isRegister && <FileField id="profilePicture" label="Profile picture" />}
+              {isRegister && (
+                <TextField
+                  autoComplete="off"
+                  icon={Wallet}
+                  id="UPI_Id"
+                  label="UPI ID"
+                  placeholder="name@bank"
+                />
+              )}
               <TextField
                 autoComplete="email"
                 icon={Mail}

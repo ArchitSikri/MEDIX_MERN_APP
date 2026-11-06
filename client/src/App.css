@@ -800,6 +800,266 @@ html::-webkit-scrollbar {
   @apply text-right text-sm font-medium;
 }
 
+.user-profile-link {
+  @apply mt-6 no-underline;
+}
+
+.account-header-actions {
+  @apply flex items-center gap-5;
+}
+
+.user-welcome-card {
+  @apply mt-10;
+}
+
+.doctor-directory,
+.user-appointments-section,
+.doctor-appointments-section {
+  @apply mx-auto mt-12 max-w-6xl pb-12;
+}
+
+.doctor-directory-heading {
+  @apply mb-7 flex flex-wrap items-end justify-between gap-5;
+}
+
+.doctor-directory-heading h2,
+.user-appointments-section h2,
+.doctor-appointments-section h2 {
+  @apply mt-2 font-display text-3xl;
+}
+
+.doctor-directory-heading p {
+  @apply mt-2 text-sm text-muted;
+}
+
+.directory-profile-link {
+  @apply inline-flex items-center gap-2 text-sm text-accent no-underline;
+}
+
+.doctor-directory-grid {
+  @apply grid gap-5 md:grid-cols-2 xl:grid-cols-3;
+}
+
+.doctor-directory-card {
+  @apply flex flex-col rounded-2xl border border-line bg-white p-6 shadow-sm;
+}
+
+.doctor-directory-profile {
+  @apply flex items-center gap-4;
+}
+
+.doctor-directory-profile > img,
+.doctor-directory-avatar-fallback {
+  @apply grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-full bg-paper object-cover text-accent;
+}
+
+.doctor-directory-profile h3,
+.user-appointment-row h3 {
+  @apply font-medium;
+}
+
+.doctor-directory-profile p,
+.doctor-directory-bio {
+  @apply mt-1 text-sm text-muted;
+}
+
+.doctor-directory-bio {
+  @apply mt-5 line-clamp-3;
+}
+
+.doctor-directory-details {
+  @apply mt-5 space-y-3 border-t border-line pt-4;
+}
+
+.doctor-directory-details > div {
+  @apply flex justify-between gap-4 text-sm;
+}
+
+.doctor-directory-details dt {
+  @apply shrink-0 text-muted;
+}
+
+.doctor-directory-details dd {
+  @apply text-right;
+}
+
+.doctor-clinic-address dt {
+  @apply inline-flex items-center gap-1;
+}
+
+.doctor-booking-form {
+  @apply mt-auto flex flex-col gap-3 border-t border-line pt-5;
+}
+
+.doctor-booking-form label {
+  @apply inline-flex items-center gap-2 text-sm font-medium;
+}
+
+.doctor-booking-form input {
+  @apply w-full rounded-md border border-line bg-paper px-3 py-3 text-sm outline-none focus:border-accent;
+}
+
+.doctor-booking-form .submit-button {
+  @apply mt-1 w-full;
+}
+
+.directory-empty {
+  @apply mt-5 rounded-xl border border-line bg-white p-6 text-sm text-muted;
+}
+
+.user-appointment-list {
+  @apply mt-5 divide-y divide-line rounded-xl border border-line bg-white;
+}
+
+.user-appointment-row {
+  @apply flex flex-wrap items-center justify-between gap-4 p-5;
+}
+
+.user-appointment-row p {
+  @apply mt-1 text-sm text-muted;
+}
+
+.appointment-status {
+  @apply rounded-full bg-paper px-3 py-1 text-xs font-medium;
+}
+
+.appointment-status--pending {
+  @apply bg-amber-50 text-amber-800;
+}
+
+.appointment-status--confirmed {
+  @apply bg-green-50 text-green-800;
+}
+
+.appointment-status--rejected {
+  @apply bg-rose-50 text-rose-800;
+}
+
+.doctor-appointment-actions {
+  @apply flex flex-wrap items-center gap-2;
+}
+
+.appointment-decision {
+  @apply rounded-md border px-3 py-1.5 text-xs transition disabled:cursor-wait disabled:opacity-60;
+}
+
+.appointment-decision--confirm {
+  @apply border-green-700 text-green-800 hover:bg-green-50;
+}
+
+.appointment-decision--reject {
+  @apply border-line text-muted hover:border-accent hover:text-accent;
+}
+
+.profile-back-link {
+  @apply inline-flex items-center gap-2 text-sm text-muted transition hover:text-accent;
+}
+
+.profile-page-content {
+  @apply mx-auto max-w-5xl pb-16 pt-12;
+}
+
+.profile-page-heading {
+  @apply mb-8;
+}
+
+.profile-page-heading h1 {
+  @apply mt-2 font-display text-4xl;
+}
+
+.profile-page-heading > p,
+.profile-card-heading p {
+  @apply mt-2 text-sm text-muted;
+}
+
+.profile-page-grid {
+  @apply grid gap-6 md:grid-cols-[1.4fr_0.8fr];
+}
+
+.profile-card {
+  @apply rounded-2xl border border-line bg-white p-7 shadow-sm;
+}
+
+.profile-card-heading h2 {
+  @apply font-display text-2xl;
+}
+
+.profile-edit-form {
+  @apply mt-6 flex flex-col;
+}
+
+.profile-avatar {
+  @apply grid h-24 w-24 place-items-center overflow-hidden rounded-full border border-line bg-paper text-3xl font-semibold text-accent;
+}
+
+.profile-avatar img {
+  @apply h-full w-full object-cover;
+}
+
+.profile-photo-picker {
+  @apply mt-3 inline-flex w-fit cursor-pointer items-center gap-2 text-sm text-accent;
+}
+
+.profile-photo-picker input {
+  @apply sr-only;
+}
+
+.profile-input-label {
+  @apply mb-2 mt-5 text-sm font-medium;
+}
+
+.profile-input {
+  @apply w-full rounded-md border border-line bg-paper px-4 py-3 text-sm outline-none transition focus:border-accent;
+}
+
+.profile-input--readonly {
+  @apply cursor-not-allowed text-muted;
+}
+
+.profile-save-button {
+  @apply mt-6;
+}
+
+.wallet-card {
+  @apply flex flex-col items-start;
+}
+
+.wallet-icon {
+  @apply mb-5 grid h-11 w-11 place-items-center rounded-full bg-paper text-accent;
+}
+
+.wallet-card h2 {
+  @apply mt-3 font-display text-4xl;
+}
+
+.wallet-card > p {
+  @apply mt-1 text-sm text-muted;
+}
+
+.wallet-topup-note {
+  @apply mt-8 w-full rounded-lg border border-line bg-paper p-4 text-sm text-muted;
+}
+
+.wallet-topup-button {
+  @apply mt-4 w-full;
+}
+
+.wallet-recovery {
+  @apply mt-6 w-full border-t border-line pt-4;
+}
+
+.wallet-recovery summary {
+  @apply cursor-pointer text-sm font-medium text-accent;
+}
+
+.wallet-recovery > p {
+  @apply mt-3 text-sm text-muted;
+}
+
+.profile-recovery-button {
+  @apply mt-4 rounded-md border border-line px-4 py-2 text-sm transition hover:border-accent hover:text-accent disabled:cursor-wait disabled:opacity-60;
+}
+
 .auth-loading {
   @apply grid place-items-center text-sm text-muted;
 }

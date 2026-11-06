@@ -103,6 +103,15 @@ export function useAuthSession({ role, authPath, accountKey }) {
     return currentAccount
   }, [accountKey, authPath])
 
+  const refreshSession = useCallback(async () => {
+    const token = await refreshAccessToken(role, authPath)
+    const currentAccount = await getCurrentAccount(token)
+    setAccessToken(token)
+    setAccount(currentAccount)
+    setError('')
+    return token
+  }, [authPath, getCurrentAccount, role])
+
   useEffect(() => {
     let active = true
 
@@ -246,6 +255,7 @@ export function useAuthSession({ role, authPath, accountKey }) {
     account,
     setAccount,
     accessToken,
+    refreshSession,
     isLoading,
     error,
     setError,

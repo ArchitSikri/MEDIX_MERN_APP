@@ -10,6 +10,7 @@ import AdminLogin from './pages/AdminLogin.jsx'
 import AdminRegister from './pages/AdminRegister.jsx'
 import AdminMain from './pages/AdminMain.jsx'
 import UserMain from './pages/UserMain.jsx'
+import UserProfile from './pages/UserProfile.jsx'
 import DocMain from './pages/DocMain.jsx'
 import UserContext from './context/UserContext.jsx'
 import DoctorContext from './context/DocContext.jsx'
@@ -70,6 +71,10 @@ function AnimatedRoutes() {
         <Route
           path="/user/dashboard"
           element={<AuthGuard audience="user"><UserMain /></AuthGuard>}
+        />
+        <Route
+          path="/user/profile/:userId"
+          element={<AuthGuard audience="user"><UserProfile /></AuthGuard>}
         />
         <Route
           path="/doctor/dashboard"

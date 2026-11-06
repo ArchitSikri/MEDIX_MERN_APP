@@ -7,6 +7,7 @@ A full-stack doctor consultancy platform built using the MERN stack, designed to
 
 - **Doctor Registration & Login** – Dedicated authentication for doctors.
 - **Patient Registration & Login** – Patients can create accounts and securely log in.
+- **Doctor Directory & Appointments** – Patients can request appointments with verified, admin-approved doctors; doctors can accept or decline requests.
 - **Role-Based Access** – Separate authentication flows for doctors and patients.
 - **Responsive UI** – Minimal and aesthetic interface with a clean design.
 - **Secure Authentication** – Protected routes and authenticated user sessions.
@@ -102,6 +103,19 @@ npm run dev
 Configure the required environment variables before running the application.
 
 Never commit your `.env` file or expose secret credentials.
+
+For wallet top-ups, add your Razorpay credentials to `server/.env`:
+
+```env
+RAZORPAY_KEY_ID=rzp_test_your_key_id
+RAZORPAY_KEY_SECRET=your_razorpay_test_key_secret
+```
+
+The secret is only used by the backend. Wallet top-ups accept only Razorpay test-mode key IDs (`rzp_test_`); live-mode keys are rejected.
+
+Signed-in users can manage their profile and add ₹2,000 to their wallet at `/user/profile/:userId`. The wallet is credited only after the backend verifies the Razorpay order, signature, and captured payment.
+
+On the patient dashboard, users can browse approved doctors and request a future appointment time. Requests remain pending until the doctor accepts or declines them; appointment requests do not deduct wallet funds.
 
 ## 🎯 Project Objective
 

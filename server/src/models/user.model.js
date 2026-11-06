@@ -43,21 +43,25 @@ const userSchema = new mongoose.Schema({
         type : String,
         default : "user"
     },
-    razorpayAccountId: {
+    UPI_Id: {
         type: String,
         default: null
-    },
-
-    razorpayAccountStatus: {
-        type: String,
-        enum: ['NOT_CREATED', 'PENDING', 'ACTIVATED', 'SUSPENDED'],
-        default: 'NOT_CREATED'
     },
     Money_spend : {
         type : Number
     },
     socketid : {
         type : String
+    },
+    wallet : {
+        type: Number,
+        default: 0,
+        min: 0
+    },
+    walletPaymentIds: {
+        type: [String],
+        default: [],
+        select: false
     }
 } , { timestamps: true } )
 

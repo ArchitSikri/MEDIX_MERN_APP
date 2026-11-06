@@ -78,21 +78,19 @@ const doctorSchema = new mongoose.Schema({
       default: "PENDING",
       index: true,
     },
-     razorpayAccountId: {
-        type: String,
-        default: null
-    },
-
-    razorpayAccountStatus: {
-        type: String,
-        enum: ['NOT_CREATED', 'PENDING', 'ACTIVATED', 'SUSPENDED'],
-        default: 'NOT_CREATED'
-    },
     Money_earned : {
         type : Number
     },
     socketId : {
         type : String
+    },
+    UPI_Id: {
+        type: String,
+        default: null
+    },
+    wallet : {
+        type: String,
+        default: null
     }
 }, {
     timestamps: true, toJSON: { virtuals: true }

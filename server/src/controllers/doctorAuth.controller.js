@@ -80,6 +80,9 @@ export async function registerDoctor(req, res) {
             message: `Required fields: ${requiredTextFields.join(', ')}`
         });
     }
+    if (body.UPI_Id != null && typeof body.UPI_Id !== 'string') {
+        return res.status(400).json({ message: 'UPI ID must be text' });
+    }
 
     const { missingFields } = getDoctorDocumentFiles(req.files);
     if (missingFields.length > 0) {
@@ -148,6 +151,7 @@ export async function registerDoctor(req, res) {
             UG_Degree_certificate: uploadedFiles.UG_Degree_certificate,
             PG_Degree_certificate: uploadedFiles.PG_Degree_certificate,
             Photo: uploadedFiles.Photo,
+            UPI_Id: body.UPI_Id?.trim() || null,
             status: 'PENDING',
             verified: false,
             active: true
